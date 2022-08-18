@@ -252,17 +252,17 @@ function core:UpdateLDB(text)
 	dataObj.text = text
 end
 
-	
+
 function core:OnInitialize()
 	self.db = LibStub("AceDB-3.0"):New("QuestHubberDB", defaults, "Default");
 	self:RegisterChatCommand("qh", "SlashCommand")
 	self:RegisterChatCommand("qhub", "SlashCommand")
 	self:RegisterChatCommand("questhubber", "SlashCommand")
-	
+
 	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("QuestHubber", options);
 	local ACD = LibStub("AceConfigDialog-3.0");
 	ACD:AddToBlizOptions("QuestHubber", "QuestHubber");
-	
+
 	self:SetupMapModule();
 	self:SetupTooltip();
 
@@ -276,19 +276,19 @@ function core:OnEnable()
 	self:QueryQuestsCompleted();
 
 	self:RegisterEvent("WORLD_MAP_UPDATE"); 			-- map change
-	
+
 	self:RegisterEvent("QUEST_LOG_UPDATE");				-- scan for quest completion/pickup
-	
+
 	self:RegisterEvent("MINIMAP_UPDATE_TRACKING"); 		-- for toggling Low Level Quests
-	
+
 	self:Hook("SetAbandonQuest", true);					-- hook for abandoned quests
 	self:Hook("AbandonQuest", true);					-- hook for confirmation
-	
+
 	self.mapModule:Show();
 end
 
 function core:OnDisable()
-	self.mapModule:Hide();	
+	self.mapModule:Hide();
 end
 
 function core:SlashHandle(message)
@@ -409,11 +409,11 @@ function core:ShowPin(id, data)
 		-- self:Debug("Bad quest data:", id, data, ";;;", flags, level, xcoord, ycoord, npc, name)
 		return
 	end
-	
+
 	if (bit.band(flags, 0x02) > 0) then
 		self.data.npcs[tonumber(npc)] = id;
 	end
-	
+
 	-- check the cache for quest name; scan tooltip if not
 	if (not self.cache.quests[id]) then
 		self:QuestScan(id);
@@ -520,20 +520,20 @@ function core:QuestAvailable(id, data)
 	if data then
 		local flags, class, race, _, _, _, _, _, _, pre, post, final = self:GetQuestData(data);
 		class, race = tonumber(class), tonumber(race)
-		
+
 		-- check race
 		local urace = RACE_ID[select(2, UnitRace("player"))]
 		if (race > 0 and urace and bit.band(race, urace) == 0) then
 			-- self:Debug("Hid", id, "because of race restriction")
 			return false
-		end			
-		
+		end
+
 		-- check class
 		local uclass = CLASS_ID[select(2, UnitClass("player"))]
 		if (class > 0 and uclass and bit.band(class, uclass) == 0) then
 			-- self:Debug("Hid", id, "because of class restriction")
 			return false
-		end		
+		end
 
 		-- check daily - we don't want it to add to total if we have it turned off
 		if (bit.band(flags, 0x040) > 0 and not self.db.profile.daily.display) then
@@ -556,12 +556,12 @@ function core:QuestAvailable(id, data)
 			end
 		end
 	end
-	
+
 	-- check based on chain - TODO: delete
 	if (not self.questLog[id] and not self.playerQuests[id] and self.questLink[id]) then
 		return not self.playerQuests[self.questLink[id]];
 	end
-	
+
 	-- now only return true if its not in your logs or completed list
 	return not self.questLog[id] and not self.playerQuests[id];
 end
@@ -584,8 +584,8 @@ function core:QuestUnfiltered(id, data)
 			end
 		else
 			-- check if we're displaying normal quests
-			if not db.quests.display then 
-				return false 
+			if not db.quests.display then
+				return false
 			end
 		end
 
@@ -615,7 +615,7 @@ function core:TrackingLow()
 			end
 		end
 	end
-	
+
 	if trackIndex then
 		return select(3, GetTrackingInfo(trackIndex))
 	end
@@ -644,7 +644,7 @@ end
 function core:CompletedBreadcrumbs(qidStr)
 	local qid, delim, cdr = qidStr:match("(%d+)([|&]*)(%s*)")
 	local completed = self.playerQuests[tonumber(qid) or 0]
-	
+
 	if delim == "" then
 		return completed
 	elseif delim == "|" then
@@ -666,14 +666,14 @@ function core:GetMousePosition()
 	local x, y = GetCursorPosition();
 	local cx = (x/scale - left) / width;
 	local cy = (top - y/scale) / height;
-	
+
 	return math.min(math.max(cx, 0), 1), math.min(math.max(cy, 0), 1);
 end
 
 function core:Distance(x1, y1, x2, y2)
 	-- gets distance in map units TODO: use yards?
 	local distRatio = WorldMapDetailFrame:GetHeight() / WorldMapDetailFrame:GetWidth();
-	
+
 	return math.sqrt( (x1 - x2)^2 + ((y1 - y2)/distRatio)^2 );
 end
 
@@ -692,7 +692,7 @@ function core:ShowTooltip(pin)
 
 	self.tooltip:SetOwner(pin, "ANCHOR_RIGHT");
 	self.tooltip:ClearLines();
-	
+
 	-- find all quests in range of hover
 	local mx, my = self:GetMousePosition();
 	local npcList = {};
@@ -713,8 +713,8 @@ function core:ShowTooltip(pin)
 			end
 		end
 	end
-	
-	local first = true;	
+
+	local first = true;
 	local cZone = self.data.zones[self.currentZone];
 	for npc,questList in pairs(npcList) do
 		wipe(listedQuests)
@@ -729,7 +729,7 @@ function core:ShowTooltip(pin)
 			local questName = self.cache.quests[q]
 			local leftStr = ("[%d] %s"):format(level, questName or "(Querying server...)")
 			local rightStr = "";
-			
+
 			-- checking flags for rightStr text
 			-- rightStr = "|TInterface\\CURSOR\\CURSORICONSNEW:16:16:0:0:128:256:32:63:128:159|t" -- -64:-96
 			for flg, text in pairs(FLAG_STR) do
@@ -757,7 +757,7 @@ function core:ShowTooltip(pin)
 		self.tooltip:AddLine(self.cache.npcs[npc] or (IS_ENGLISH and npcNames[npc]) or ("(%s)"):format(npcNames[npc]), 1, 1, 1, 1);
 		self.tooltip:SetLastFont(self.tooltip.small);
 	end
-	
+
 	self.tooltip:Show();
 end
 
@@ -779,7 +779,7 @@ function core:QUEST_LOG_UPDATE()
 		end
 	end
 	ExpandQuestHeader(0)
-	
+
 	if (not self.questInit) then
 		for i=1,GetNumQuestLogEntries() do
 			local _, _, _, _, _, _, _, _, id = GetQuestLogTitle(i);
@@ -801,7 +801,7 @@ function core:QUEST_LOG_UPDATE()
 			end
 		end
 		-- self:Debug("_END_");
-		
+
 		for i,v in pairs(self.questLog) do
 			if (not tempLog[i]) then
 				-- quest removed; hopefully completed
@@ -813,7 +813,7 @@ function core:QUEST_LOG_UPDATE()
 				self:UpdatePins(true);
 			end
 		end
-		
+
 		-- merge added
 		for i,v in pairs(tempLog) do
 			if (not self.questLog[i]) then
@@ -823,7 +823,7 @@ function core:QUEST_LOG_UPDATE()
 			end
 		end
 	end
-	
+
 	-- restore closed tabs
 	for i=1,GetNumQuestLogEntries() do
 		local title, _, _, _, isHeader = GetQuestLogTitle(i);
@@ -851,7 +851,7 @@ function core:Debug(level, ...)
 		self:Debug(1, level, ...);
 		return;
 	end
-	if self.db.profile.debug >= level then 
+	if self.db.profile.debug >= level then
 		self:Print(...);
 	end
 end
@@ -862,7 +862,7 @@ function core:RegisterQuests(zones)
 		if (not self.data.zones[i]) then
 			self.data.zones[i] = {};
 		end
-		
+
 		for q,qv in pairs(v) do
 			self.data.zones[i][q] = qv;
 		end
@@ -913,7 +913,7 @@ function core:SetupMapModule()
 	frame:SetScript("OnLeave", function(self)
 		core.tooltip:Hide();
 	end);
-	
+
 	frame.check = CreateFrame("CheckButton", nil, frame, "OptionsBaseCheckButtonTemplate");
 	frame.check:SetSize(18, 18);
 	frame.check:SetHitRectInsets(0, 0, 0, 0);
@@ -939,14 +939,14 @@ function core:SetupMapModule()
 		-- core:Print("Leave");
 		core.tooltip:Hide();
 	end);
-	
+
 	local font, size = GameTooltipHeader:GetFont();
 	frame.text = frame:CreateFontString();
 	frame.text:SetFont(font, size, "OUTLINE");
 	frame.text:SetTextColor(255/255, 210/255, 0/255, 1);
 	frame.text:SetText("QuestHubber");
 	frame.text:SetPoint("LEFT", frame.check, "RIGHT");
-	
+
 	core.mapModule = frame;
 	core.mapModule.SetCount = function(self, m, n)
 		-- sets the text to QuestHubber (m/n) and shows a tooltip saying how many are hidden
@@ -974,7 +974,7 @@ function core:SetMapModuleDisplay(shown)
 	end
 end
 
-	
+
 
 function core:SetupTooltip()
 	self.tooltip = CreateFrame("GameTooltip", "QuestHubberTooltip", UIParent, "GameTooltipTemplate");
@@ -989,7 +989,7 @@ function core:SetupTooltip()
 		_G[("QuestHubberTooltipText%s%d"):format(txt, self:NumLines())]:SetFont(fontObj:GetFont());
 		-- _G["QuestHubberTooltipTextRight"..self:NumLines()]:SetFont(fontObj:GetFont());
 	end
-	
+
 	-- if the UI panel disappears (maximized WorldMapFrame) we need to change parents
 	self:HookScript(UIParent, "OnHide", function()
 		self.tooltip:SetParent(WorldMapFrame);
