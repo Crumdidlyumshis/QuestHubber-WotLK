@@ -1,4 +1,4 @@
-## Interface: 50200
+## Interface: 30300
 ## Title: QuestHubber_Outland
 ## Author: pigmonkey
 ## Dependencies: QuestHubber

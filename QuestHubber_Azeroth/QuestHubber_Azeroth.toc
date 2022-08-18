@@ -1,4 +1,4 @@
-## Interface: 50200
+## Interface: 30300
 ## Title: QuestHubber_Azeroth
 ## Author: pigmonkey
 ## Dependencies: QuestHubber
