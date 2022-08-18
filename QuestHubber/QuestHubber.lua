@@ -224,7 +224,7 @@ local dataObj = ldb:NewDataObject("QuestHubber", {
 	type = "data source",
 	text = "0",
 	value = "0",
-	icon = "Interface\\AddOns\\QuestHubber\\QuestIcon.tga",
+	icon = "Interface\\AddOns\\QuestHubber\\QuestIcon.blp",
 	OnClick = function(self, button)
 		if button == "LeftButton" then
 			if IsControlKeyDown() then
@@ -432,18 +432,18 @@ function core:ShowPin(id, data)
 	elseif UnitLevel("player") > level + 10 then
 		texType = "low"
 	end
-	
+
 	local pin = self:GetPin();
-	
+
 	pin:SetType(texType);
 	pin:ClearAllPoints();
 	pin.questHubberID = id;
-	-- pin:SetParent(WorldMapDetailFrame);
+	pin:SetParent(WorldMapDetailFrame);
 	pin:SetFrameLevel(WorldMapPOIFrame:GetFrameLevel()-1);
 	pin:SetPoint("CENTER", WorldMapDetailFrame, "TOPLEFT", xcoord/10000*WorldMapDetailFrame:GetWidth(), -ycoord/10000*WorldMapDetailFrame:GetHeight());
-	-- pin:SetFrameStrata("FULLSCREEN");
+	pin:SetFrameStrata("FULLSCREEN");
 	pin:Show();
-	
+
 	self.pinReg[id] = pin;
 end
 
@@ -462,18 +462,18 @@ function core:HideAllPins()
 end
 
 -- tile sizes and coord starts for Interface\\MINIMAP\\ObjectIcons.blp
-local tileX, tileY = 1/8, 1/8
-local dailyX, dailyY = 3, 1
-local questX, questY = 1, 1
+-- local tileX, tileY = 3/8, 3/8
+-- local dailyX, dailyY = 3, 1
+-- local questX, questY = 1, 1
 function core:GetPin()
 	if (#self.frameReg > 0) then
 		return table.remove(self.frameReg);
 	end
-	
+
 	-- create new
 	local pin = CreateFrame("Frame", nil, WorldMapDetailFrame);
-	pin:SetWidth(16);
-	pin:SetHeight(16);
+	pin:SetWidth(24);
+	pin:SetHeight(24);
 	pin:EnableMouse(true);
 	pin:SetScript("OnEnter", function(pin)
 		self:ShowTooltip(pin);
@@ -488,28 +488,30 @@ function core:GetPin()
 		self.texture:SetDesaturated(false);
 		self.texture:SetVertexColor(1, 1, 1);
 		if texType == "daily" then
-            self.texture:SetTexCoord(dailyX*tileX, (dailyX+1)*tileX, dailyY*tileY, (dailyY+1)*tileY)
+            -- self.texture:SetTexCoord(dailyX*tileX, (dailyX+1)*tileX, dailyY*tileY, (dailyY+1)*tileY)
+			self.texture:SetVertexColor(0, 146, 211);
 		elseif texType == "low" then
 			-- I don't like this one, it's too hard to see.
 			-- self.texture:SetTexCoord(4*0.125, 5*0.125, 3*0.250, 4*0.250);
-            self.texture:SetTexCoord(questX*tileX, (questX+1)*tileX, questY*tileY, (questY+1)*tileY)
+            -- self.texture:SetTexCoord(questX*tileX, (questX+1)*tileX, questY*tileY, (questY+1)*tileY)
 			self.texture:SetVertexColor(0.75, 0.75, 0.75);
 		elseif texType == "high" then
 			-- Note: not all systems can desaturate. If they don't, I don't really care.
-            self.texture:SetTexCoord(questX*tileX, (questX+1)*tileX, questY*tileY, (questY+1)*tileY)
+            -- self.texture:SetTexCoord(questX*tileX, (questX+1)*tileX, questY*tileY, (questY+1)*tileY)
 			self.texture:SetDesaturated(1);
 		else
-            self.texture:SetTexCoord(questX*tileX, (questX+1)*tileX, questY*tileY, (questY+1)*tileY)
+            -- self.texture:SetTexCoord(questX*tileX, (questX+1)*tileX, questY*tileY, (questY+1)*tileY)
+			-- self.texture:SetTexCoord(0,1,0,1)
 		end
 
 		self.texType = texType
 	end
 
 	pin.texture = pin:CreateTexture();
-	pin.texture:SetTexture("Interface\\MINIMAP\\ObjectIcons.blp");
+	pin.texture:SetTexture("Interface\\AddOns\\QuestHubber\\QuestIcon.blp");
 	pin.texture:SetAllPoints();
 	pin:SetType("default")
-	
+
 	return pin;
 end
 
